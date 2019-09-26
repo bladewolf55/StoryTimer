@@ -14,16 +14,35 @@ namespace StoryTimer
     public partial class Form1 : Form
     {
         List<StoryTimerInstance> _storyTimers = new List<StoryTimerInstance>();
+        Size _defaultSize;
+
         public Form1()
         {
             InitializeComponent();
-            panel1.Visible = false;
-            this.Height = this.Height - panel1.Height;
+            _defaultSize = this.Size;
+            ResetAll();
+        }
+
+        private void ResetAll()
+        {
+            Size = _defaultSize;
+            foreach (Control control in this.Controls)
+            {
+                if (control is Panel && control.Name != "panel")
+                {
+                    Controls.Remove(control);
+                }
+            }
+
+            panel.Visible = false;
+            this.Height = this.Height - panel.Height;
             checkBox1.Checked = true;
 
-            StoryTimerInstance storyTimer = new StoryTimerInstance(_storyTimers.Count, panel1);
+            _storyTimers = new List<StoryTimerInstance>();
+            StoryTimerInstance storyTimer = new StoryTimerInstance(_storyTimers.Count, panel);
             storyTimer.TimerStarted += StoryTimer_TimerStarted;
             _storyTimers.Add(storyTimer);
+
         }
 
         private void StoryTimer_TimerStarted(object sender, TimerEventArgs e)
@@ -46,7 +65,7 @@ namespace StoryTimer
                 StoryTimerInstance storyTimer = _storyTimers.Last();
                 if (_storyTimers.Count == 1 && !storyTimer.Panel.Visible)
                 {
-                    
+
                     storyTimer.Title.Text = textBoxNew.Text;
                     storyTimer.Panel.Visible = true;
                     this.Height = this.Height + storyTimer.Panel.Height;
@@ -75,10 +94,13 @@ namespace StoryTimer
             newTimer.Start();
         }
 
-
+        private void ButtonResetAll_Click(object sender, EventArgs e)
+        {
+            ResetAll();
+        }
     }
 
-    public class TimerEventArgs: EventArgs
+    public class TimerEventArgs : EventArgs
     {
         public int Id { get; set; }
     }
@@ -110,7 +132,6 @@ namespace StoryTimer
             Timer.Tick += Timer_Tick;
             StartPause.Click += PlayPause_Click;
             Reset.Click += Reset_Click;
-            
         }
 
         private object GetPanelControl(string key)
@@ -129,6 +150,7 @@ namespace StoryTimer
         public void Start()
         {
             Timer.Start();
+            SetElapsedSecondsToDisplayedTime();
             UpdateStartButton();
             OnTimerStarted();
         }
@@ -166,10 +188,14 @@ namespace StoryTimer
 
         private void PlayPause_Click(object sender, EventArgs e)
         {
+            SetElapsedSecondsToDisplayedTime();
             Timer.Enabled = !Timer.Enabled;
             UpdateElapsedTime();
             UpdateStartButton();
-            if (Timer.Enabled) { OnTimerStarted(); }
+            if (Timer.Enabled)
+            {
+                OnTimerStarted();
+            }
         }
 
         private void Timer_Tick(object sender, EventArgs e)
@@ -178,6 +204,15 @@ namespace StoryTimer
             UpdateElapsedTime();
         }
 
+        private void SetElapsedSecondsToDisplayedTime()
+        {
+            //Set calling timer's ElapsedSeconds to its displayed time
+            TimeSpan time;
+            if (TimeSpan.TryParse(ElapsedTime.Text, out time))
+            {
+                ElapsedSeconds = (int)time.TotalSeconds;
+            }
+        }
         private void UpdateElapsedTime()
         {
             ElapsedTime.Text = " " + TimeSpan.FromSeconds(ElapsedSeconds).ToString(@"h\:mm\:ss");
@@ -186,17 +221,19 @@ namespace StoryTimer
         public StoryTimerInstance Clone(int id, int top)
         {
             Panel panel = new Panel();
-
+            panel.Name = "panel" + id;
             panel.Top = top;
             panel.Width = Panel.Width;
             panel.Height = Panel.Height;
             panel.Left = Panel.Left;
+            panel.Anchor = Panel.Anchor;
 
             TextBox title = new TextBox();
             title.Name = Title.Name;
             title.Location = Title.Location;
             title.Width = Title.Width;
             title.Height = Title.Height;
+            title.Anchor = Title.Anchor;
             panel.Controls.Add(title);
 
             Button startPause = new Button();
@@ -233,6 +270,16 @@ namespace StoryTimer
             StoryTimerInstance clone = new StoryTimerInstance(id, panel);
             clone.Timer.Tag = id;
             return clone;
+        }
+
+        private void SetState()
+        {
+
+        }
+
+        private void GetState()
+        {
+
         }
     }
 }

@@ -28,7 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.panel1 = new System.Windows.Forms.Panel();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            this.panel = new System.Windows.Forms.Panel();
             this.richTextBoxElapsedTime = new System.Windows.Forms.RichTextBox();
             this.buttonReset = new System.Windows.Forms.Button();
             this.buttonStartPause = new System.Windows.Forms.Button();
@@ -37,19 +38,22 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.panel1.SuspendLayout();
+            this.buttonResetAll = new System.Windows.Forms.Button();
+            this.panel.SuspendLayout();
             this.SuspendLayout();
             // 
-            // panel1
+            // panel
             // 
-            this.panel1.Controls.Add(this.richTextBoxElapsedTime);
-            this.panel1.Controls.Add(this.buttonReset);
-            this.panel1.Controls.Add(this.buttonStartPause);
-            this.panel1.Controls.Add(this.textBoxTitle);
-            this.panel1.Location = new System.Drawing.Point(9, 63);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(182, 59);
-            this.panel1.TabIndex = 0;
+            this.panel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel.Controls.Add(this.richTextBoxElapsedTime);
+            this.panel.Controls.Add(this.buttonReset);
+            this.panel.Controls.Add(this.buttonStartPause);
+            this.panel.Controls.Add(this.textBoxTitle);
+            this.panel.Location = new System.Drawing.Point(9, 63);
+            this.panel.Name = "panel";
+            this.panel.Size = new System.Drawing.Size(182, 59);
+            this.panel.TabIndex = 0;
             // 
             // richTextBoxElapsedTime
             // 
@@ -88,6 +92,8 @@
             // 
             // textBoxTitle
             // 
+            this.textBoxTitle.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.textBoxTitle.Location = new System.Drawing.Point(4, 3);
             this.textBoxTitle.Name = "textBoxTitle";
             this.textBoxTitle.Size = new System.Drawing.Size(170, 20);
@@ -95,6 +101,8 @@
             // 
             // textBoxNew
             // 
+            this.textBoxNew.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.textBoxNew.Location = new System.Drawing.Point(13, 38);
             this.textBoxNew.Name = "textBoxNew";
             this.textBoxNew.Size = new System.Drawing.Size(170, 20);
@@ -114,39 +122,53 @@
             // label2
             // 
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(13, 23);
+            this.label2.Location = new System.Drawing.Point(11, 23);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(178, 15);
             this.label2.TabIndex = 2;
-            this.label2.Text = "Enter a title and press <Enter>";
+            this.label2.Text = "Enter a title and <Enter>";
             // 
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
             this.checkBox1.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.checkBox1.Location = new System.Drawing.Point(112, 4);
+            this.checkBox1.Location = new System.Drawing.Point(112, 5);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(71, 17);
             this.checkBox1.TabIndex = 3;
             this.checkBox1.Text = "Exclusive";
             this.checkBox1.UseVisualStyleBackColor = true;
             // 
+            // buttonResetAll
+            // 
+            this.buttonResetAll.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.buttonResetAll.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonResetAll.Location = new System.Drawing.Point(132, 20);
+            this.buttonResetAll.Name = "buttonResetAll";
+            this.buttonResetAll.Size = new System.Drawing.Size(50, 17);
+            this.buttonResetAll.TabIndex = 4;
+            this.buttonResetAll.Text = "Reset";
+            this.buttonResetAll.UseVisualStyleBackColor = true;
+            this.buttonResetAll.Click += new System.EventHandler(this.ButtonResetAll_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(203, 128);
+            this.ClientSize = new System.Drawing.Size(197, 128);
+            this.Controls.Add(this.buttonResetAll);
             this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textBoxNew);
-            this.Controls.Add(this.panel1);
+            this.Controls.Add(this.panel);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "Form1";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
+            this.panel.ResumeLayout(false);
+            this.panel.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -154,7 +176,7 @@
 
         #endregion
 
-        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel panel;
         private System.Windows.Forms.RichTextBox richTextBoxElapsedTime;
         private System.Windows.Forms.Button buttonReset;
         private System.Windows.Forms.Button buttonStartPause;
@@ -163,6 +185,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.Button buttonResetAll;
     }
 }
 
