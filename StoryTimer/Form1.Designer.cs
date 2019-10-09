@@ -107,7 +107,7 @@
             this.textBoxNew.Name = "textBoxNew";
             this.textBoxNew.Size = new System.Drawing.Size(170, 20);
             this.textBoxNew.TabIndex = 0;
-            this.textBoxNew.KeyUp += new System.Windows.Forms.KeyEventHandler(this.TextBoxNew_KeyUp);
+            this.textBoxNew.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxNew_KeyDown);
             // 
             // label1
             // 
@@ -163,10 +163,12 @@
             this.Controls.Add(this.textBoxNew);
             this.Controls.Add(this.panel);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.KeyPreview = true;
             this.MaximizeBox = false;
             this.Name = "Form1";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyDown);
             this.panel.ResumeLayout(false);
             this.panel.PerformLayout();
             this.ResumeLayout(false);

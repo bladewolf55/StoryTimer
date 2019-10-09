@@ -20,12 +20,31 @@ namespace StoryTimer
         {
             InitializeComponent();
             _defaultSize = this.Size;
-            ResetAll();
+            // temporary initial position where I like it
+            // top right
+            StartPosition = FormStartPosition.Manual;
+            Left = Screen.PrimaryScreen.Bounds.Width - Width + 5;
+            Top = 0;
+            panel.Visible = false;
+            this.Height = this.Height - panel.Height;
+            checkBox1.Checked = true;
+            StoryTimerInstance storyTimer = new StoryTimerInstance(_storyTimers.Count, panel);
+            storyTimer.TimerStarted += StoryTimer_TimerStarted;
+            _storyTimers.Add(storyTimer);
         }
 
         private void ResetAll()
         {
             Size = _defaultSize;
+            //remove timers
+            
+            foreach (var timer in _storyTimers.Where(a => a.Id > 0).ToList())
+            {
+                var remove = timer;
+                remove.StopAndReset();
+                remove.Timer.Dispose();
+                _storyTimers.Remove(remove);
+            }
             foreach (Control control in this.Controls)
             {
                 if (control is Panel && control.Name != "panel")
@@ -37,12 +56,7 @@ namespace StoryTimer
             panel.Visible = false;
             this.Height = this.Height - panel.Height;
             checkBox1.Checked = true;
-
-            _storyTimers = new List<StoryTimerInstance>();
-            StoryTimerInstance storyTimer = new StoryTimerInstance(_storyTimers.Count, panel);
-            storyTimer.TimerStarted += StoryTimer_TimerStarted;
-            _storyTimers.Add(storyTimer);
-
+            _storyTimers.First().StopAndReset();
         }
 
         private void StoryTimer_TimerStarted(object sender, TimerEventArgs e)
@@ -58,7 +72,7 @@ namespace StoryTimer
             }
         }
 
-        private void TextBoxNew_KeyUp(object sender, KeyEventArgs e)
+        private void TextBoxNew_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
@@ -98,6 +112,28 @@ namespace StoryTimer
         {
             ResetAll();
         }
+
+
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control & e.KeyCode == Keys.A)
+            {
+                CopyAll();
+            }
+        }
+
+        private void CopyAll()
+        {
+            string info = "";
+            foreach (var timer in _storyTimers)
+            {
+                info += $"{timer.ElapsedTime.Text.Trim()}  {timer.Title.Text.Trim()}{Environment.NewLine}";
+            }
+            Clipboard.SetText(info);
+            MessageBox.Show("All timers saved to clipboard", "Story Timer");
+        }
+
+
     }
 
     public class TimerEventArgs : EventArgs
@@ -105,181 +141,5 @@ namespace StoryTimer
         public int Id { get; set; }
     }
 
-    public class StoryTimerInstance
-    {
-        public event EventHandler<TimerEventArgs> TimerStarted;
-        protected virtual void OnTimerStarted()
-        {
-            TimerEventArgs e = new TimerEventArgs() { Id = this.Id };
-            EventHandler<TimerEventArgs> handler = TimerStarted;
-            handler?.Invoke(this, e);
-        }
 
-        public int Id { get; set; }
-        public Panel Panel { get; set; } = new Panel();
-        public TextBox Title { get { return GetPanelControl("textBoxTitle") as TextBox; } }
-        public Button StartPause { get { return GetPanelControl("buttonStartPause") as Button; } }
-        public Button Reset { get { return GetPanelControl("buttonReset") as Button; } }
-        public RichTextBox ElapsedTime { get { return GetPanelControl("richTextBoxElapsedTime") as RichTextBox; } }
-        public System.Windows.Forms.Timer Timer { get; set; } = new System.Windows.Forms.Timer();
-        public int ElapsedSeconds { get; set; }
-
-        public StoryTimerInstance(int id, Panel panel)
-        {
-            Id = id;
-            Panel = panel;
-            Timer.Interval = 1000;
-            Timer.Tick += Timer_Tick;
-            StartPause.Click += PlayPause_Click;
-            Reset.Click += Reset_Click;
-        }
-
-        private object GetPanelControl(string key)
-        {
-            try
-            {
-                return Panel.Controls[key];
-            }
-            catch { return null; }
-        }
-
-        /// <summary>
-        /// Starts the timer and sets the button color. Use this instead
-        /// of Timer.Start
-        /// </summary>
-        public void Start()
-        {
-            Timer.Start();
-            SetElapsedSecondsToDisplayedTime();
-            UpdateStartButton();
-            OnTimerStarted();
-        }
-
-        /// <summary>
-        /// Stops the timer and sets the button color. Use this instead of Timer.Stop().
-        /// </summary>
-        public void Stop()
-        {
-            Timer.Stop();
-            UpdateStartButton();
-        }
-
-        public void UpdateStartButton()
-        {
-            if (Timer.Enabled)
-            {
-                StartPause.BackColor = ElapsedTime.BackColor;
-                StartPause.ForeColor = ElapsedTime.ForeColor;
-            }
-            else
-            {
-                StartPause.BackColor = Reset.BackColor;
-                StartPause.ForeColor = Reset.ForeColor;
-            }
-        }
-
-        private void Reset_Click(object sender, EventArgs e)
-        {
-            Timer.Stop();
-            ElapsedSeconds = 0;
-            UpdateElapsedTime();
-            UpdateStartButton();
-        }
-
-        private void PlayPause_Click(object sender, EventArgs e)
-        {
-            SetElapsedSecondsToDisplayedTime();
-            Timer.Enabled = !Timer.Enabled;
-            UpdateElapsedTime();
-            UpdateStartButton();
-            if (Timer.Enabled)
-            {
-                OnTimerStarted();
-            }
-        }
-
-        private void Timer_Tick(object sender, EventArgs e)
-        {
-            ElapsedSeconds += 1;
-            UpdateElapsedTime();
-        }
-
-        private void SetElapsedSecondsToDisplayedTime()
-        {
-            //Set calling timer's ElapsedSeconds to its displayed time
-            TimeSpan time;
-            if (TimeSpan.TryParse(ElapsedTime.Text, out time))
-            {
-                ElapsedSeconds = (int)time.TotalSeconds;
-            }
-        }
-        private void UpdateElapsedTime()
-        {
-            ElapsedTime.Text = " " + TimeSpan.FromSeconds(ElapsedSeconds).ToString(@"h\:mm\:ss");
-        }
-
-        public StoryTimerInstance Clone(int id, int top)
-        {
-            Panel panel = new Panel();
-            panel.Name = "panel" + id;
-            panel.Top = top;
-            panel.Width = Panel.Width;
-            panel.Height = Panel.Height;
-            panel.Left = Panel.Left;
-            panel.Anchor = Panel.Anchor;
-
-            TextBox title = new TextBox();
-            title.Name = Title.Name;
-            title.Location = Title.Location;
-            title.Width = Title.Width;
-            title.Height = Title.Height;
-            title.Anchor = Title.Anchor;
-            panel.Controls.Add(title);
-
-            Button startPause = new Button();
-            startPause.Name = StartPause.Name;
-            startPause.Location = StartPause.Location;
-            startPause.Width = StartPause.Width;
-            startPause.Height = StartPause.Height;
-            startPause.Font = StartPause.Font;
-            startPause.Text = StartPause.Text;
-            panel.Controls.Add(startPause);
-
-            Button reset = new Button();
-            reset.Name = Reset.Name;
-            reset.Location = Reset.Location;
-            reset.Width = Reset.Width;
-            reset.Height = Reset.Height;
-            reset.Font = Reset.Font;
-            reset.Text = Reset.Text;
-            panel.Controls.Add(reset);
-
-            RichTextBox elapsedTime = new RichTextBox();
-            elapsedTime.Name = ElapsedTime.Name;
-            elapsedTime.Location = ElapsedTime.Location;
-            elapsedTime.Width = ElapsedTime.Width;
-            elapsedTime.Height = ElapsedTime.Height;
-            elapsedTime.Font = ElapsedTime.Font;
-            elapsedTime.ScrollBars = ElapsedTime.ScrollBars;
-            elapsedTime.BorderStyle = ElapsedTime.BorderStyle;
-            elapsedTime.BackColor = ElapsedTime.BackColor;
-            elapsedTime.ForeColor = ElapsedTime.ForeColor;
-            elapsedTime.Text = " 0:00:00";
-            panel.Controls.Add(elapsedTime);
-
-            StoryTimerInstance clone = new StoryTimerInstance(id, panel);
-            clone.Timer.Tag = id;
-            return clone;
-        }
-
-        private void SetState()
-        {
-
-        }
-
-        private void GetState()
-        {
-
-        }
-    }
 }
