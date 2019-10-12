@@ -11,14 +11,21 @@ using System.Windows.Forms;
 
 namespace StoryTimer
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
         List<StoryTimerInstance> _storyTimers = new List<StoryTimerInstance>();
+        System.Timers.Timer _statusTimer = new System.Timers.Timer();
         Size _defaultSize;
 
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
+            InitializeTimers();
+            InitializeStatusTimer();
+        }
+
+        private void InitializeTimers()
+        {
             _defaultSize = this.Size;
             // temporary initial position where I like it
             // top right
@@ -31,6 +38,13 @@ namespace StoryTimer
             StoryTimerInstance storyTimer = new StoryTimerInstance(_storyTimers.Count, panel);
             storyTimer.TimerStarted += StoryTimer_TimerStarted;
             _storyTimers.Add(storyTimer);
+
+        }
+
+        private void InitializeStatusTimer()
+        {
+            _statusTimer.Interval = 5000;
+            _statusTimer.Elapsed += StatusTimer_Elapsed;
         }
 
         private void ResetAll()
@@ -57,6 +71,59 @@ namespace StoryTimer
             this.Height = this.Height - panel.Height;
             checkBox1.Checked = true;
             _storyTimers.First().StopAndReset();
+        }
+
+        private void CreateNewTimer(string title)
+        {
+            StoryTimerInstance lastTimer = _storyTimers.Last();
+            Panel lastPanel = lastTimer.Panel;
+            int id = _storyTimers.Count;
+            int top = lastPanel.Bottom + 10;
+            StoryTimerInstance newTimer = lastTimer.Clone(id, top);
+            _storyTimers.Add(newTimer);
+            newTimer.TimerStarted += StoryTimer_TimerStarted;
+            newTimer.Title.Text = title;
+            this.Height = this.Height + lastTimer.Panel.Height + 10;
+            this.Controls.Add(newTimer.Panel);
+            newTimer.Start();
+        }
+
+        private void CopyAll()
+        {
+            string info = "";
+            foreach (var timer in _storyTimers)
+            {
+                info += $"{timer.ElapsedTime.Text.Trim()}  {timer.Title.Text.Trim()}{Environment.NewLine}";
+            }
+            Clipboard.SetText(info);
+            WriteStatus("All timers saved to clipboard");
+        }
+
+        private void WriteStatus(string msg)
+        {
+            toolStripStatusLabel1.Text = msg;
+            _statusTimer.Start();
+        }
+
+        #region "Controls"
+
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control & e.Shift & e.KeyCode == Keys.A)
+            {
+                CopyAll();
+            }
+        }
+
+        private void ButtonResetAll_Click(object sender, EventArgs e)
+        {
+            ResetAll();
+        }
+
+        private void StatusTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            _statusTimer.Stop();
+            toolStripStatusLabel1.Text = "";
         }
 
         private void StoryTimer_TimerStarted(object sender, TimerEventArgs e)
@@ -93,53 +160,10 @@ namespace StoryTimer
             }
         }
 
-        private void CreateNewTimer(string title)
-        {
-            StoryTimerInstance lastTimer = _storyTimers.Last();
-            Panel lastPanel = lastTimer.Panel;
-            int id = _storyTimers.Count;
-            int top = lastPanel.Bottom + 10;
-            StoryTimerInstance newTimer = lastTimer.Clone(id, top);
-            _storyTimers.Add(newTimer);
-            newTimer.TimerStarted += StoryTimer_TimerStarted;
-            newTimer.Title.Text = title;
-            this.Height = this.Height + lastTimer.Panel.Height + 10;
-            this.Controls.Add(newTimer.Panel);
-            newTimer.Start();
-        }
-
-        private void ButtonResetAll_Click(object sender, EventArgs e)
-        {
-            ResetAll();
-        }
-
-
-        private void Form1_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Control & e.KeyCode == Keys.A)
-            {
-                CopyAll();
-            }
-        }
-
-        private void CopyAll()
-        {
-            string info = "";
-            foreach (var timer in _storyTimers)
-            {
-                info += $"{timer.ElapsedTime.Text.Trim()}  {timer.Title.Text.Trim()}{Environment.NewLine}";
-            }
-            Clipboard.SetText(info);
-            MessageBox.Show("All timers saved to clipboard", "Story Timer");
-        }
-
-
+        #endregion
     }
 
-    public class TimerEventArgs : EventArgs
-    {
-        public int Id { get; set; }
-    }
+
 
 
 }
