@@ -55,7 +55,7 @@
             this.panel.Controls.Add(this.textBoxTitle);
             this.panel.Location = new System.Drawing.Point(9, 63);
             this.panel.Name = "panel";
-            this.panel.Size = new System.Drawing.Size(182, 59);
+            this.panel.Size = new System.Drawing.Size(183, 59);
             this.panel.TabIndex = 0;
             // 
             // richTextBoxElapsedTime
@@ -65,6 +65,7 @@
             this.richTextBoxElapsedTime.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.richTextBoxElapsedTime.ForeColor = System.Drawing.Color.Orange;
             this.richTextBoxElapsedTime.Location = new System.Drawing.Point(94, 28);
+            this.richTextBoxElapsedTime.Multiline = false;
             this.richTextBoxElapsedTime.Name = "richTextBoxElapsedTime";
             this.richTextBoxElapsedTime.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
             this.richTextBoxElapsedTime.Size = new System.Drawing.Size(80, 28);
@@ -99,7 +100,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBoxTitle.Location = new System.Drawing.Point(4, 3);
             this.textBoxTitle.Name = "textBoxTitle";
-            this.textBoxTitle.Size = new System.Drawing.Size(170, 20);
+            this.textBoxTitle.Size = new System.Drawing.Size(171, 20);
             this.textBoxTitle.TabIndex = 1;
             // 
             // textBoxNew
@@ -108,7 +109,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBoxNew.Location = new System.Drawing.Point(13, 38);
             this.textBoxNew.Name = "textBoxNew";
-            this.textBoxNew.Size = new System.Drawing.Size(170, 20);
+            this.textBoxNew.Size = new System.Drawing.Size(171, 20);
             this.textBoxNew.TabIndex = 0;
             this.textBoxNew.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxNew_KeyDown);
             // 
@@ -135,7 +136,7 @@
             // 
             this.checkBox1.AutoSize = true;
             this.checkBox1.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.checkBox1.Location = new System.Drawing.Point(112, 5);
+            this.checkBox1.Location = new System.Drawing.Point(114, 5);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(71, 17);
             this.checkBox1.TabIndex = 3;
@@ -146,11 +147,12 @@
             // 
             this.buttonResetAll.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.buttonResetAll.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonResetAll.Location = new System.Drawing.Point(132, 20);
+            this.buttonResetAll.Location = new System.Drawing.Point(140, 20);
             this.buttonResetAll.Name = "buttonResetAll";
-            this.buttonResetAll.Size = new System.Drawing.Size(50, 17);
+            this.buttonResetAll.Size = new System.Drawing.Size(45, 17);
             this.buttonResetAll.TabIndex = 4;
             this.buttonResetAll.Text = "Reset";
+            this.buttonResetAll.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.buttonResetAll.UseVisualStyleBackColor = true;
             this.buttonResetAll.Click += new System.EventHandler(this.ButtonResetAll_Click);
             // 
@@ -164,20 +166,21 @@
             this.toolStripStatusLabel1});
             this.statusStrip1.Location = new System.Drawing.Point(0, 127);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(191, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(192, 22);
             this.statusStrip1.TabIndex = 5;
-            this.statusStrip1.Text = "statusStrip1";
+            this.statusStrip1.Text = "Ctrl+Shift+C to copy timers, Ctrl+Shift+V to paste";
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(0, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(38, 17);
+            this.toolStripStatusLabel1.Text = "label1";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(197, 149);
+            this.ClientSize = new System.Drawing.Size(198, 149);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.buttonResetAll);
             this.Controls.Add(this.checkBox1);
@@ -186,12 +189,10 @@
             this.Controls.Add(this.textBoxNew);
             this.Controls.Add(this.panel);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.KeyPreview = true;
             this.MaximizeBox = false;
             this.Name = "MainForm";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyDown);
             this.panel.ResumeLayout(false);
             this.panel.PerformLayout();
             this.statusStrip1.ResumeLayout(false);

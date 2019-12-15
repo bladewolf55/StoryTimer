@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,10 @@ namespace StoryTimer
 {
     public class StoryTimerInstance
     {
+        Color timerStoppedBackground = Color.FromArgb(64, 64, 64);
+        Color timerStoppedForeground = Color.Orange;
+
+
         public event EventHandler<TimerEventArgs> TimerStarted;
         protected virtual void OnTimerStarted()
         {
@@ -53,7 +58,7 @@ namespace StoryTimer
         {
             Timer.Start();
             SetElapsedSecondsToDisplayedTime();
-            UpdateStartButton();
+            UpdateStartButtonAndTime();
             OnTimerStarted();
         }
 
@@ -63,7 +68,7 @@ namespace StoryTimer
         public void Stop()
         {
             Timer.Stop();
-            UpdateStartButton();
+            UpdateStartButtonAndTime();
         }
 
         /// <summary>
@@ -74,20 +79,24 @@ namespace StoryTimer
             Timer.Stop();
             ElapsedSeconds = 0;
             UpdateElapsedTime();
-            UpdateStartButton();
+            UpdateStartButtonAndTime();
         }
 
-        public void UpdateStartButton()
+        public void UpdateStartButtonAndTime()
         {
             if (Timer.Enabled)
             {
-                StartPause.BackColor = ElapsedTime.BackColor;
-                StartPause.ForeColor = ElapsedTime.ForeColor;
+                StartPause.BackColor = timerStoppedBackground;
+                StartPause.ForeColor = timerStoppedForeground;
+                ElapsedTime.BackColor = timerStoppedBackground;
+                ElapsedTime.ForeColor = timerStoppedForeground;
             }
             else
             {
                 StartPause.BackColor = Reset.BackColor;
                 StartPause.ForeColor = Reset.ForeColor;
+                ElapsedTime.BackColor = Reset.BackColor;
+                ElapsedTime.ForeColor = Reset.ForeColor;
             }
         }
 
@@ -96,7 +105,7 @@ namespace StoryTimer
             Timer.Stop();
             ElapsedSeconds = 0;
             UpdateElapsedTime();
-            UpdateStartButton();
+            UpdateStartButtonAndTime();
         }
 
         private void PlayPause_Click(object sender, EventArgs e)
@@ -104,7 +113,7 @@ namespace StoryTimer
             SetElapsedSecondsToDisplayedTime();
             Timer.Enabled = !Timer.Enabled;
             UpdateElapsedTime();
-            UpdateStartButton();
+            UpdateStartButtonAndTime();
             if (Timer.Enabled)
             {
                 OnTimerStarted();
