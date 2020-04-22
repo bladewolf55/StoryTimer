@@ -15,10 +15,18 @@ namespace StoryTimer
 
 
         public event EventHandler<TimerEventArgs> TimerStarted;
+        public event EventHandler<TimerEventArgs> TimerTicked;
         protected virtual void OnTimerStarted()
         {
             TimerEventArgs e = new TimerEventArgs() { Id = this.Id };
             EventHandler<TimerEventArgs> handler = TimerStarted;
+            handler?.Invoke(this, e);
+        }
+
+        protected virtual void OnTimerTicked()
+        {
+            TimerEventArgs e = new TimerEventArgs() { Id = this.Id };
+            EventHandler<TimerEventArgs> handler = TimerTicked;
             handler?.Invoke(this, e);
         }
 
@@ -39,6 +47,13 @@ namespace StoryTimer
             Timer.Tick += Timer_Tick;
             StartPause.Click += PlayPause_Click;
             Reset.Click += Reset_Click;
+            Title.TextChanged += Timer_TextChanged;
+            ElapsedTime.TextChanged += Timer_TextChanged;
+        }
+
+        private void Timer_TextChanged(object sender, EventArgs e)
+        {
+            OnTimerTicked();
         }
 
         private object GetPanelControl(string key)
@@ -124,6 +139,7 @@ namespace StoryTimer
         {
             ElapsedSeconds += 1;
             UpdateElapsedTime();
+            OnTimerTicked();
         }
 
         private void SetElapsedSecondsToDisplayedTime()
@@ -135,6 +151,7 @@ namespace StoryTimer
                 ElapsedSeconds = (int)time.TotalSeconds;
             }
         }
+
         private void UpdateElapsedTime()
         {
             ElapsedTime.Text = " " + TimeSpan.FromSeconds(ElapsedSeconds).ToString(@"h\:mm\:ss");

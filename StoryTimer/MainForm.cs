@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -12,28 +13,36 @@ namespace StoryTimer
         List<StoryTimerInstance> _storyTimers = new List<StoryTimerInstance>();
         System.Timers.Timer _statusTimer = new System.Timers.Timer();
         Size _defaultSize;
+        Settings _settings;
 
         public MainForm()
         {
             InitializeComponent();
+            InitializeSettings();
             InitializeTimers();
             InitializeStatusTimer();
             SetStatusToHelpText();
         }
 
+        // Do this after the form is loaded so its size is available.
+        private void InitializeSettings()
+        {
+            _settings = new SettingsManager().Settings;
+        }
+
         private void InitializeTimers()
         {
             _defaultSize = this.Size;
-            // temporary initial position where I like it
-            // top right
             StartPosition = FormStartPosition.Manual;
-            Left = Screen.PrimaryScreen.Bounds.Width - Width + 5;
-            Top = 0;
+            Left = _settings.WindowPosX;
+            Top = _settings.WindowPosY;
             panel.Visible = false;
-            this.Height = this.Height - panel.Height;
+            Width = _settings.WindowWidth;
+            Height = Height - panel.Height;
             checkBox1.Checked = true;
             StoryTimerInstance storyTimer = new StoryTimerInstance(_storyTimers.Count, panel);
             storyTimer.TimerStarted += StoryTimer_TimerStarted;
+            storyTimer.TimerTicked += StoryTimer_TimerTicked;
             _storyTimers.Add(storyTimer);
 
         }
@@ -93,6 +102,7 @@ namespace StoryTimer
                 this.Height = this.Height + lastTimer.Panel.Height + 10;
                 this.Controls.Add(newTimer.Panel);
                 newTimer.TimerStarted += StoryTimer_TimerStarted;
+                newTimer.TimerTicked += StoryTimer_TimerTicked;
             }
             //Prevents all timers showing as started when pasting a list into 
             //a new StoryTimer instance.
@@ -105,13 +115,19 @@ namespace StoryTimer
 
         private void CopyAll()
         {
+            string info = GetTimersInfo();
+            Clipboard.SetText(info, TextDataFormat.Text);
+            WriteStatus("All timers saved to clipboard");
+        }
+
+        private string GetTimersInfo()
+        {
             string info = "";
             foreach (var timer in _storyTimers)
             {
                 info += $"{timer.ElapsedTime.Text.Trim()}  {timer.Title.Text.Trim()}{Environment.NewLine}";
             }
-            Clipboard.SetText(info, TextDataFormat.Text);
-            WriteStatus("All timers saved to clipboard");
+            return info;
         }
 
         private void PasteAll()
@@ -186,6 +202,10 @@ Timer text must be in form [time] [title], e.g.
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
+        #endregion
+
+        #region "Events"
+
         private void ButtonResetAll_Click(object sender, EventArgs e)
         {
             ResetAll();
@@ -210,6 +230,11 @@ Timer text must be in form [time] [title], e.g.
             }
         }
 
+        private void StoryTimer_TimerTicked(object sender, TimerEventArgs e)
+        {
+            File.WriteAllText(_settings.SaveFolderPath, GetTimersInfo());
+        }
+
         private void TextBoxNew_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -218,7 +243,6 @@ Timer text must be in form [time] [title], e.g.
                 textBoxNew.Text = "";
             }
         }
-
         #endregion
     }
 
