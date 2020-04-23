@@ -241,6 +241,9 @@ Timer text must be in form [time] [title], e.g.
             {
                 AddNewTimer(textBoxNew.Text);
                 textBoxNew.Text = "";
+                // remove "ding"
+                e.Handled = true;
+                e.SuppressKeyPress = true;
             }
         }
         #endregion
