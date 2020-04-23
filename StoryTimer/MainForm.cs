@@ -249,7 +249,4 @@ Timer text must be in form [time] [title], e.g.
         #endregion
     }
 
-
-
-
 }
