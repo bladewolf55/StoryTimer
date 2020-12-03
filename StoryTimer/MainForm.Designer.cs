@@ -193,6 +193,7 @@
             this.Name = "MainForm";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Load += new System.EventHandler(this.MainForm_Load);
             this.panel.ResumeLayout(false);
             this.panel.PerformLayout();
             this.statusStrip1.ResumeLayout(false);

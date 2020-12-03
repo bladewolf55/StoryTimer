@@ -21,9 +21,9 @@ namespace StoryTimer
             InitializeSettings();
             InitializeTimers();
             InitializeStatusTimer();
-            LoadTimerText(ReadTimerText());
             SetTimerTotal();
             SetStatusToHelpText();
+            // loading from text happens in MainForm_Load event so that form is visible.
         }
 
         // Do this after the form is loaded so its size is available.
@@ -290,6 +290,11 @@ Timer text must be in form [time] [title], e.g.
             }
         }
         #endregion
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            LoadTimerText(ReadTimerText());
+        }
     }
 
 }
