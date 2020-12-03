@@ -259,12 +259,12 @@ Timer text must be in form [time] [title], e.g.
 
         private void WriteTimerText()
         {
-            File.WriteAllText(_settings.SaveFolderPath, GetTimersInfo(false));
+            File.WriteAllText(_settings.SaveCurrentTimesFilePath, GetTimersInfo(false));
         }
 
         private string ReadTimerText()
         {
-            if (File.Exists(_settings.SaveFolderPath)) return File.ReadAllText(_settings.SaveFolderPath);
+            if (File.Exists(_settings.SaveCurrentTimesFilePath)) return File.ReadAllText(_settings.SaveCurrentTimesFilePath);
             else return "";
         }
 

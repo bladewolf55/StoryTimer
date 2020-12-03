@@ -11,7 +11,7 @@ namespace StoryTimer
 {
     public class Settings
     {
-        public string SaveFolderPath { get; set; }
+        public string SaveCurrentTimesFilePath { get; set; }
         public int WindowPosX { get; set; }
         public int WindowPosY { get; set; }
         public int WindowWidth { get; set; }
@@ -25,7 +25,7 @@ namespace StoryTimer
         private string _exeFolderPath = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory);
         private string _settingsFileName = "settings.json";
         private string _settingsFilePath;
-        private string _saveFolderName = "current-times.txt";
+        private string _saveCurrentTimesFileName = "current-times.txt";
 
         public SettingsManager()
         {
@@ -40,7 +40,7 @@ namespace StoryTimer
 
             Settings defaultSettings = new Settings()
             {
-                SaveFolderPath = Path.Combine(_exeFolderPath, _saveFolderName),
+                SaveCurrentTimesFilePath = Path.Combine(_exeFolderPath, _saveCurrentTimesFileName),
                 WindowWidth = mainFormWidth,
                 // temporary initial position where I like it
                 // top right
