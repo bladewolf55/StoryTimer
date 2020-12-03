@@ -21,6 +21,8 @@ namespace StoryTimer
             InitializeSettings();
             InitializeTimers();
             InitializeStatusTimer();
+            LoadTimerText(ReadTimerText());
+            SetTimerTotal();
             SetStatusToHelpText();
         }
 
@@ -44,7 +46,6 @@ namespace StoryTimer
             storyTimer.TimerStarted += StoryTimer_TimerStarted;
             storyTimer.TimerTicked += StoryTimer_TimerTicked;
             _storyTimers.Add(storyTimer);
-
         }
 
         private void InitializeStatusTimer()
@@ -108,25 +109,35 @@ namespace StoryTimer
             //a new StoryTimer instance.
             newTimer.StopAndReset();
             newTimer.Title.Text = title;
-            newTimer.ElapsedTime.Text = elapsedTime;
+            // setting ElapsedTime.Text doesn't fire the event
+            // while in ctor.
+            newTimer.SetElapsedTime(elapsedTime);
             if (!doNotStart) { newTimer.Start(); }
             return newTimer;
         }
 
-        private void CopyAll()
+        private void CopyAll(bool roundToQuarter)
         {
-            string info = GetTimersInfo();
+            string info = GetTimersInfo(roundToQuarter);
             Clipboard.SetText(info, TextDataFormat.Text);
             WriteStatus("All timers saved to clipboard");
         }
 
-        private string GetTimersInfo()
+        private string GetTimersInfo(bool roundToQuarter)
         {
             string info = "";
+            double totalTime = 0;
             foreach (var timer in _storyTimers)
             {
-                info += $"{timer.ElapsedTime.Text.Trim()}  {timer.Title.Text.Trim()}{Environment.NewLine}";
+                if (roundToQuarter)
+                {
+                    info += $"{timer.GetElapsedTimeToQuarter().ToString("00.00")} {timer.Title.Text.Trim()}{Environment.NewLine}";
+                    totalTime += timer.GetElapsedTimeToQuarter();
+                }
+                else
+                    info += $"{timer.ElapsedTime.Text.Trim()} {timer.Title.Text.Trim()}{Environment.NewLine}";
             }
+            if (roundToQuarter) info += Environment.NewLine + $"{totalTime.ToString("00.00")} TOTAL {Environment.NewLine}";
             return info;
         }
 
@@ -135,8 +146,17 @@ namespace StoryTimer
             string text = Clipboard.GetText(TextDataFormat.Text);
             if (String.IsNullOrWhiteSpace(text))
             {
-                WriteStatus("No timer text in clipboard");
+                WriteStatus("No timer text in clipboard");                
             }
+            else
+            {
+                LoadTimerText(text);
+            }
+        }
+
+        private void LoadTimerText(string text)
+        {
+            if (String.IsNullOrWhiteSpace(text)) return;
             string[] lines = text.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
             var timers = lines.Select(a =>
             {
@@ -159,6 +179,7 @@ namespace StoryTimer
                 catch { }
             }
             WriteStatus("All possible timers restored");
+
         }
 
         private void SetStatusToHelpText()
@@ -177,7 +198,7 @@ namespace StoryTimer
         {
             if (keyData == (Keys.Control | Keys.Shift | Keys.C))
             {
-                CopyAll();
+                CopyAll(true);
                 return true;
             }
             if (keyData == (Keys.Control | Keys.Shift | Keys.V))
@@ -232,7 +253,29 @@ Timer text must be in form [time] [title], e.g.
 
         private void StoryTimer_TimerTicked(object sender, TimerEventArgs e)
         {
-            File.WriteAllText(_settings.SaveFolderPath, GetTimersInfo());
+            SetTimerTotal();
+            WriteTimerText();
+        }
+
+        private void WriteTimerText()
+        {
+            File.WriteAllText(_settings.SaveFolderPath, GetTimersInfo(false));
+        }
+
+        private string ReadTimerText()
+        {
+            if (File.Exists(_settings.SaveFolderPath)) return File.ReadAllText(_settings.SaveFolderPath);
+            else return "";
+        }
+
+        private void SetTimerTotal()
+        {
+            int totalSeconds = _storyTimers
+                .Sum(a => a.ElapsedSeconds);
+
+            TimeSpan ts = new TimeSpan(0, 0, totalSeconds);
+            string totalTime = ts.ToString(@"h\:mm\:ss");
+            this.Text = totalTime;
         }
 
         private void TextBoxNew_KeyDown(object sender, KeyEventArgs e)
