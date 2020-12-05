@@ -14,6 +14,7 @@ namespace StoryTimer
         System.Timers.Timer _statusTimer = new System.Timers.Timer();
         Size _defaultSize;
         Settings _settings;
+        public const string TimerFormat = @"h\:mm\:ss";
 
         public MainForm()
         {
@@ -116,14 +117,14 @@ namespace StoryTimer
             return newTimer;
         }
 
-        private void CopyAll(bool roundToQuarter)
+        private void CopyAll(bool roundToQuarter, bool includeTotal)
         {
-            string info = GetTimersInfo(roundToQuarter);
+            string info = GetTimersInfo(roundToQuarter, includeTotal);
             Clipboard.SetText(info, TextDataFormat.Text);
             WriteStatus("All timers saved to clipboard");
         }
 
-        private string GetTimersInfo(bool roundToQuarter)
+        private string GetTimersInfo(bool roundToQuarter, bool includeTotal)
         {
             string info = "";
             double totalTime = 0;
@@ -135,9 +136,24 @@ namespace StoryTimer
                     totalTime += timer.GetElapsedTimeToQuarter();
                 }
                 else
+                {
                     info += $"{timer.ElapsedTime.Text.Trim()} {timer.Title.Text.Trim()}{Environment.NewLine}";
+                    totalTime += timer.ElapsedSeconds;
+
+                }
             }
-            if (roundToQuarter) info += Environment.NewLine + $"{totalTime.ToString("00.00")} TOTAL {Environment.NewLine}";
+            if (includeTotal)
+            {
+                if (roundToQuarter)
+                {
+                    info += Environment.NewLine + $"{totalTime.ToString("00.00")} TOTAL {Environment.NewLine}";
+                }
+                else
+                {
+                    info += Environment.NewLine + $"{(new TimeSpan(0, 0, (int)totalTime).ToString(TimerFormat))} TOTAL {Environment.NewLine}";
+                }
+            }
+
             return info;
         }
 
@@ -146,7 +162,7 @@ namespace StoryTimer
             string text = Clipboard.GetText(TextDataFormat.Text);
             if (String.IsNullOrWhiteSpace(text))
             {
-                WriteStatus("No timer text in clipboard");                
+                WriteStatus("No timer text in clipboard");
             }
             else
             {
@@ -196,9 +212,16 @@ namespace StoryTimer
         #region "Controls"
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
+            // Copy full times
             if (keyData == (Keys.Control | Keys.Shift | Keys.C))
             {
-                CopyAll(true);
+                CopyAll(false, true);
+                return true;
+            }
+            // Copy time rounded to quarter hour
+            if (keyData == (Keys.Control | Keys.Alt | Keys.C))
+            {
+                CopyAll(true, true);
                 return true;
             }
             if (keyData == (Keys.Control | Keys.Shift | Keys.V))
@@ -210,10 +233,11 @@ namespace StoryTimer
             {
                 string help = @"Exclusive unchecked = allow simultaneous timing.
 
-Ctrl+Shift+C to copy all timers
+Ctrl+Shift+C to copy all timers to the second, e.g. 0:12:34
+Ctrl+Alt+C to copy all timers rounded to quarter hour, e.g. 09.75
 Ctrl+Shift+V to add timers from text
 
-Timer text must be in form [time] [title], e.g. 
+To paste, timer text must be in form [time] [title], e.g. 
 1:23:45 My First Timer
 0:01:03 My Second Timer
 ";
@@ -259,7 +283,7 @@ Timer text must be in form [time] [title], e.g.
 
         private void WriteTimerText()
         {
-            File.WriteAllText(_settings.SaveCurrentTimesFilePath, GetTimersInfo(false));
+            File.WriteAllText(_settings.SaveCurrentTimesFilePath, GetTimersInfo(false, false));
         }
 
         private string ReadTimerText()
@@ -274,7 +298,7 @@ Timer text must be in form [time] [title], e.g.
                 .Sum(a => a.ElapsedSeconds);
 
             TimeSpan ts = new TimeSpan(0, 0, totalSeconds);
-            string totalTime = ts.ToString(@"h\:mm\:ss");
+            string totalTime = ts.ToString(TimerFormat);
             this.Text = totalTime;
         }
 

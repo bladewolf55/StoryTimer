@@ -187,7 +187,6 @@ namespace StoryTimer
             return hours + min;
         }
 
-
         public void UpdateStartButtonAndTime()
         {
             if (Timer.Enabled)
@@ -245,7 +244,7 @@ namespace StoryTimer
 
         private void UpdateElapsedTime()
         {
-            ElapsedTime.Text = " " + TimeSpan.FromSeconds(ElapsedSeconds).ToString(@"h\:mm\:ss");
+            ElapsedTime.Text = " " + TimeSpan.FromSeconds(ElapsedSeconds).ToString(MainForm.TimerFormat);
         }
 
 
