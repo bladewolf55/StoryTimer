@@ -216,7 +216,7 @@ namespace StoryTimer
         }
         private void WriteCurrentTimerText()
         {
-            File.WriteAllText(_settings.SaveCurrentTimesFilePath, GetTimersInfo(false, false,true));
+            File.WriteAllText(_settings.SaveCurrentTimesFilePath, GetTimersInfo(false, false, true));
         }
 
         private void WritePreviousTimerText(bool append = true)
@@ -340,5 +340,4 @@ To paste, timer text must be in form [time] [title], e.g.
             LoadTimerText(ReadCurrentTimerText());
         }
     }
-
 }

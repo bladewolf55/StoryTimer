@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
+using System.Text.Json;
 using System.IO;
 using System.Windows.Forms;
 
@@ -41,10 +41,10 @@ namespace StoryTimer
         private void SaveSettings(Settings settings = null)
         {
             if (settings == null) { settings = Settings; }
-            File.WriteAllText(_settingsFilePath, JsonConvert.SerializeObject(settings));
+            File.WriteAllText(_settingsFilePath, JsonSerializer.Serialize(settings));
         }
 
-        public Settings Settings { get => JsonConvert.DeserializeObject<Settings>(File.ReadAllText(_settingsFilePath)); }
+        public Settings Settings { get => JsonSerializer.Deserialize<Settings>(File.ReadAllText(_settingsFilePath)); }
 
         public object GetSetting(string name)
         {
@@ -57,5 +57,4 @@ namespace StoryTimer
             SaveSettings();
         }
     }
-
 }

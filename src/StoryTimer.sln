@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.29209.62
+VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StoryTimer", "StoryTimer\StoryTimer.csproj", "{1BFC5DB3-9834-4E2B-8707-A1C62EA30299}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StoryTimer", "StoryTimer\StoryTimer.csproj", "{8D3E0C31-5010-4EC5-95B8-315552E45A8C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1BFC5DB3-9834-4E2B-8707-A1C62EA30299}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1BFC5DB3-9834-4E2B-8707-A1C62EA30299}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1BFC5DB3-9834-4E2B-8707-A1C62EA30299}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1BFC5DB3-9834-4E2B-8707-A1C62EA30299}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D3E0C31-5010-4EC5-95B8-315552E45A8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D3E0C31-5010-4EC5-95B8-315552E45A8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D3E0C31-5010-4EC5-95B8-315552E45A8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D3E0C31-5010-4EC5-95B8-315552E45A8C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {01CDF02C-0AE5-40A8-BCE7-38A4C8EDEE66}
+		SolutionGuid = {08315889-9977-4552-90F3-0A49DD686232}
 	EndGlobalSection
 EndGlobal

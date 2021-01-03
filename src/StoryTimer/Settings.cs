@@ -8,4 +8,4 @@
         public int WindowPosY { get; set; }
         public int WindowWidth { get; set; }
     }
- }
+}
