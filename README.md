@@ -1,16 +1,16 @@
-![](StoryTimer/stopwatch-sm.png)
+![](src/StoryTimer/stopwatch-sm.png)
 
 # StoryTimer
 A simple app that makes it easier to track time when task-switching. Good for supporting Scrum burn-down charts.
 
-![](Story%20Timer%20Screenshot.png)
+![](doc/Story%20Timer%20Screenshot.png)
 
 ## Usage
 Open Story Timer, enter a title for the first timer and press <Enter>. The timer will be created and start immediately.
 
-![](storytimer_help_1.png)
+![](doc/storytimer_help_1.png)
 
-![](storytimer_help_2.png)
+![](doc/storytimer_help_2.png)
 
 While the first timer is running, you can add a second timer and it will immediately start, while the other timer will stop.
 
