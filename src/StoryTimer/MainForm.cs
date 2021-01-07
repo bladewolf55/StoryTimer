@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -13,18 +14,20 @@ namespace StoryTimer
 {
     public partial class MainForm : Form
     {
-        private readonly SettingsUI _settingsUI;
+        private IHostEnvironment _environment;
         private SettingsManager _settingsManager;
-        private AppOptions _appOptions;
+        private IOptionsMonitor<AppOptions> _appOptions;
+        private SettingsUI _settingsUI;
         private List<StoryTimerInstance> _storyTimers = new List<StoryTimerInstance>();
         private System.Timers.Timer _statusTimer = new System.Timers.Timer();
         private Size _defaultSize;
         public const string TimerFormat = @"h\:mm\:ss";
 
-        public MainForm(IOptions<AppOptions> appOptions, IHostEnvironment hostEnvironment)
+        public MainForm(IOptionsMonitor<AppOptions> appOptions, IHostEnvironment environment)
         {
-            _appOptions = appOptions.Value;
-            _settingsManager = new SettingsManager(hostEnvironment);
+            _environment = environment;
+            _appOptions = appOptions;
+            _settingsManager = new SettingsManager(environment);
             InitializeComponent();
             InitializeSettings();
             InitializeTimers();
@@ -37,14 +40,16 @@ namespace StoryTimer
         // Do this after the form is loaded so its size is available.
         private void InitializeSettings()
         {
+            var options = _appOptions.CurrentValue;
             string currentVersion = Application.ProductVersion;
-            if (String.IsNullOrWhiteSpace(_appOptions.Version))
+
+            if (String.IsNullOrWhiteSpace(options.Version))
             {
                 int mainFormWidth = 214;
                 string exeFolderPath = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory);
                 string saveCurrentTimesFileName = "current-times.txt";
                 string savePreviousTimesFileName = "previous-times.txt";
-                _appOptions = new AppOptions(
+                options = new AppOptions(
                     Version: currentVersion,
                     SaveCurrentTimesFilePath: Path.Combine(exeFolderPath, saveCurrentTimesFileName),
                     SavePreviousTimesFilePath: Path.Combine(exeFolderPath, savePreviousTimesFileName),
@@ -56,16 +61,20 @@ namespace StoryTimer
             // TODO: continue checking if currentVersion is greater than each settings change version and 
             // apply changes
             // if (_appOptions.Version.VersionLessThan(currentVersion)) {}
+
+            // Save
+            _settingsManager.SaveAppSettings(options);
         }
 
         private void InitializeTimers()
         {
+            var options = _appOptions.CurrentValue;
             _defaultSize = this.Size;
             StartPosition = FormStartPosition.Manual;
-            Left = _appOptions.WindowPosX;
-            Top = _appOptions.WindowPosY;
+            Left = options.WindowPosX;
+            Top = options.WindowPosY;
             panel.Visible = false;
-            Width = _appOptions.WindowWidth;
+            Width = options.WindowWidth;
             Height = Height - panel.Height;
             checkBox1.Checked = true;
             StoryTimerInstance storyTimer = new StoryTimerInstance(_storyTimers.Count, panel);
@@ -237,17 +246,20 @@ namespace StoryTimer
 
         private void ClearCurrentTimerText()
         {
-            File.WriteAllText(_appOptions.SaveCurrentTimesFilePath, "");
+            var options = _appOptions.CurrentValue;
+            File.WriteAllText(options.SaveCurrentTimesFilePath, "");
         }
 
         private void WriteCurrentTimerText()
         {
-            File.WriteAllText(_appOptions.SaveCurrentTimesFilePath, GetTimersInfo(false, false, true));
+            var options = _appOptions.CurrentValue;
+            File.WriteAllText(options.SaveCurrentTimesFilePath, GetTimersInfo(false, false, true));
         }
 
         private void WritePreviousTimerText(bool append = true)
         {
-            var filePath = _appOptions.SavePreviousTimesFilePath;
+            var options = _appOptions.CurrentValue;
+            var filePath = options.SavePreviousTimesFilePath;
             string header = $"## {DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}{Environment.NewLine}";
             var timersInfo = header + GetTimersInfo(false, true, true) + Environment.NewLine;
 
@@ -260,7 +272,8 @@ namespace StoryTimer
 
         private string ReadCurrentTimerText()
         {
-            if (File.Exists(_appOptions.SaveCurrentTimesFilePath)) return File.ReadAllText(_appOptions.SaveCurrentTimesFilePath);
+            var options = _appOptions.CurrentValue;
+            if (File.Exists(options.SaveCurrentTimesFilePath)) return File.ReadAllText(options.SaveCurrentTimesFilePath);
             else return "";
         }
 
@@ -296,7 +309,7 @@ namespace StoryTimer
             }
             if (keyData == (Keys.Control | Keys.S))
             {
-                _settingsUI.Show();
+                ShowSettings();
             }
             if (keyData == (Keys.Control | Keys.OemQuestion))
             {
@@ -316,6 +329,15 @@ To paste, timer text must be in form [time] [title], e.g.
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
+
+        private void ShowSettings()
+        {
+            if (_settingsUI == null)
+            {
+                _settingsUI = new SettingsUI(_appOptions, _environment);
+            }
+            _settingsUI.Show();
+        }
         #endregion
 
         #region "Events"

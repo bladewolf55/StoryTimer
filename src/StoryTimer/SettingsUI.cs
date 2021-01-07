@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,10 +15,14 @@ namespace StoryTimer
     public partial class SettingsUI : Form
     {
         private AppOptions _appOptions;
-        public SettingsUI(IOptions<AppOptions> appOptions)
+        private SettingsManager _settingsManager;
+
+        public SettingsUI(IOptionsMonitor<AppOptions> appOptions, IHostEnvironment environment)
         {
             InitializeComponent();
-            _appOptions = appOptions.Value;
+            _appOptions = appOptions.CurrentValue;
+            _settingsManager = new SettingsManager(environment);
+            ShowSettings();
         }
 
         private void ShowSettings()
@@ -33,9 +38,15 @@ namespace StoryTimer
             if (response == DialogResult.OK)
             {
                 textBoxCurrentTimesFile.Text = openFileDialog1.FileName;
-                _appOptions = new AppOptions(SaveCurrentTimesFilePath: textBoxCurrentTimesFile.Text);
-
+                //_appOptions = _appOptions with { SaveCurrentTimesFilePath = textBoxCurrentTimesFile.Text };
+                _appOptions.SaveCurrentTimesFilePath = textBoxCurrentTimesFile.Text;
+                Save(_appOptions);
             }
+        }
+
+        private void Save<T>(T options) where T: class
+        {
+            _settingsManager.SaveAppSettings(options);
         }
     }
 }

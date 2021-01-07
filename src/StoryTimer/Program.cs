@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using System;
 using System.Windows.Forms;
 
@@ -8,8 +9,6 @@ namespace StoryTimer
 {
     static class Program
     {
-        static IServiceCollection _services;
-
 
         /// <summary>
         ///  The main entry point for the application.
@@ -20,41 +19,31 @@ namespace StoryTimer
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            IHostEnvironment env;
-            var hostBuilder = CreateHostBuilder();
-            hostBuilder.ConfigureAppConfiguration((hostContext, config) =>
-            {
-                env = hostContext.HostingEnvironment;
-            });
-            
-            Application.Run(new MainForm());
+            var host = CreateHostBuilder().Build();
+
+            var main = host.Services.GetService<MainForm>();
+            Application.Run(main);
         }
 
         public static IHostBuilder CreateHostBuilder() =>
         Host.CreateDefaultBuilder()
             .ConfigureHostConfiguration((config) =>
             {
-                // override the default config providers
-                config.Sources.Clear();
-                config.AddJsonFile(SettingsManager.AppSettingsFileName, optional:false, reloadOnChange: true);
-                IConfigurationRoot configRoot = config.Build();
-               
-                // Bind options
-                var appOptions = new AppOptions();
-                configRoot.GetSection(nameof(AppOptions)).Bind(appOptions);
-                
             })
-            .ConfigureServices((hostContext, services) =>
+            .ConfigureServices((context, services) =>
             {
-                //services.AddHostedService<Worker>();
-                services.Configure<AppOptions>(
-                    )
+                IConfiguration configuration = context.Configuration;
+                services.AddOptions<AppOptions>()
+                    .Bind(configuration.GetSection(nameof(AppOptions)));
+                services.AddSingleton(context.HostingEnvironment);
+                services.AddSingleton<MainForm>();
             })
             .ConfigureAppConfiguration((hostContext, config) =>
             {
-                
+                // override the default config providers
+                config.Sources.Clear();
+                config.AddJsonFile(SettingsManager.AppSettingsFileName, optional: false, reloadOnChange: true);
             })
-            
             ;
     }
 }
