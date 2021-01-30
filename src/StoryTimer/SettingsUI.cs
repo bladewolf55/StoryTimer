@@ -116,5 +116,7 @@ namespace StoryTimer
                 MessageBox.Show(ex.Message);
             }
         }
+
+        
     }
 }

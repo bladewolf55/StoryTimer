@@ -18,11 +18,23 @@ namespace StoryTimer
         private System.Timers.Timer _statusTimer = new System.Timers.Timer();
         private Size _defaultSize;
         public const string TimerFormat = @"h\:mm\:ss";
+        private SettingsUI _settingsUI;
 
         public MainForm(IOptionsMonitor<AppOptions> appOptions = null)
         {
             InitializeComponent();
             _appOptions = appOptions;
+            _settingsUI = Program.Services.GetService<SettingsUI>();
+            _settingsUI.FormClosing += _settingsUI_FormClosing;
+        }
+
+        private void _settingsUI_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                ((Form)sender).Hide();
+                e.Cancel = true;
+            }
         }
 
 
@@ -296,7 +308,7 @@ namespace StoryTimer
                 PasteAll();
                 return true;
             }
-            if (keyData == (Keys.Control | Keys.S))
+            if (keyData == (Keys.Alt | Keys.S))
             {
                 ShowSettings();
             }
@@ -307,6 +319,7 @@ namespace StoryTimer
 Ctrl+Shift+C to copy all timers to the second, e.g. 0:12:34
 Ctrl+Alt+C to copy all timers rounded to quarter hour, e.g. 09.75
 Ctrl+Shift+V to add timers from text
+Alt+S to show Settings
 
 To paste, timer text must be in form [time] [title], e.g. 
 1:23:45 My First Timer
@@ -320,10 +333,10 @@ To paste, timer text must be in form [time] [title], e.g.
 
 
         private void ShowSettings()
-        {
-            SettingsUI settingsUI = Program.Services.GetService<SettingsUI>();
-            settingsUI.StartPosition = FormStartPosition.CenterScreen;
-            settingsUI.Show();
+        {            
+            _settingsUI.StartPosition = FormStartPosition.CenterScreen;            
+            _settingsUI.Show();
+            _settingsUI.BringToFront();
         }
         #endregion
 
