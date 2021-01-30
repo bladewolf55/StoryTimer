@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
@@ -6,41 +8,74 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
+
 namespace StoryTimer
 {
     public partial class MainForm : Form
     {
-        List<StoryTimerInstance> _storyTimers = new List<StoryTimerInstance>();
-        System.Timers.Timer _statusTimer = new System.Timers.Timer();
-        Size _defaultSize;
-        Settings _settings;
+        private IOptionsMonitor<AppOptions> _appOptions;
+        private List<StoryTimerInstance> _storyTimers = new List<StoryTimerInstance>();
+        private System.Timers.Timer _statusTimer = new System.Timers.Timer();
+        private Size _defaultSize;
         public const string TimerFormat = @"h\:mm\:ss";
+        private SettingsUI _settingsUI;
 
-        public MainForm()
+        public MainForm(IOptionsMonitor<AppOptions> appOptions = null)
         {
             InitializeComponent();
-            InitializeSettings();
-            InitializeTimers();
-            InitializeStatusTimer();
-            SetTimerTotal();
-            SetStatusToHelpText();
-            // loading from text happens in MainForm_Load event so that form is visible.
+            _appOptions = appOptions;
+            _settingsUI = Program.Services.GetService<SettingsUI>();
+            _settingsUI.FormClosing += _settingsUI_FormClosing;
         }
+
+        private void _settingsUI_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                ((Form)sender).Hide();
+                e.Cancel = true;
+            }
+        }
+
 
         // Do this after the form is loaded so its size is available.
         private void InitializeSettings()
         {
-            _settings = new SettingsManager().Settings;
+            string currentVersion = Application.ProductVersion;
+            AppOptions options = _appOptions.CurrentValue;
+
+            // always use CurrenValue
+            if (String.IsNullOrWhiteSpace(_appOptions.CurrentValue.Version))
+            {
+                int mainFormWidth = 214;
+                string exeFolderPath = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory);
+                string saveCurrentTimesFileName = "current-times.txt";
+                string savePreviousTimesFileName = "previous-times.txt";
+                // Important: Do not reinitialize options, otherwise OptionsMonitor doesn't fire correctly
+                // So, don't do optionsn = new AppOptions.
+                options.Version = currentVersion;
+                options.SaveCurrentTimesFilePath = Path.Combine(exeFolderPath, saveCurrentTimesFileName);
+                options.SavePreviousTimesFilePath = Path.Combine(exeFolderPath, savePreviousTimesFileName);
+                options.WindowPosX = Screen.PrimaryScreen.Bounds.Width - mainFormWidth + 5;
+                options.WindowPosY = 0;
+                options.WindowWidth = mainFormWidth;
+            }
+            // TODO: continue checking if currentVersion is greater than each settings change version and 
+            // apply changes
+            // if (_appOptions.Version.VersionLessThan(currentVersion)) {}
+
+            // Save
+            new SettingsManager().SaveAppOptions(options);
         }
 
         private void InitializeTimers()
         {
             _defaultSize = this.Size;
             StartPosition = FormStartPosition.Manual;
-            Left = _settings.WindowPosX;
-            Top = _settings.WindowPosY;
+            Left = _appOptions.CurrentValue.WindowPosX;
+            Top = _appOptions.CurrentValue.WindowPosY;
             panel.Visible = false;
-            Width = _settings.WindowWidth;
+            Width = _appOptions.CurrentValue.WindowWidth;
             Height = Height - panel.Height;
             checkBox1.Checked = true;
             StoryTimerInstance storyTimer = new StoryTimerInstance(_storyTimers.Count, panel);
@@ -212,16 +247,20 @@ namespace StoryTimer
 
         private void ClearCurrentTimerText()
         {
-            File.WriteAllText(_settings.SaveCurrentTimesFilePath, "");
+            var options = _appOptions.CurrentValue;
+            File.WriteAllText(options.SaveCurrentTimesFilePath, "");
         }
+
         private void WriteCurrentTimerText()
         {
-            File.WriteAllText(_settings.SaveCurrentTimesFilePath, GetTimersInfo(false, false, true));
+            var options = _appOptions.CurrentValue;
+            File.WriteAllText(options.SaveCurrentTimesFilePath, GetTimersInfo(false, false, true));
         }
 
         private void WritePreviousTimerText(bool append = true)
         {
-            var filePath = _settings.SavePreviousTimesFilePath;
+            var options = _appOptions.CurrentValue;
+            var filePath = options.SavePreviousTimesFilePath;
             string header = $"## {DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}{Environment.NewLine}";
             var timersInfo = header + GetTimersInfo(false, true, true) + Environment.NewLine;
 
@@ -234,7 +273,8 @@ namespace StoryTimer
 
         private string ReadCurrentTimerText()
         {
-            if (File.Exists(_settings.SaveCurrentTimesFilePath)) return File.ReadAllText(_settings.SaveCurrentTimesFilePath);
+            var options = _appOptions.CurrentValue;
+            if (File.Exists(options.SaveCurrentTimesFilePath)) return File.ReadAllText(options.SaveCurrentTimesFilePath);
             else return "";
         }
 
@@ -268,6 +308,10 @@ namespace StoryTimer
                 PasteAll();
                 return true;
             }
+            if (keyData == (Keys.Alt | Keys.S))
+            {
+                ShowSettings();
+            }
             if (keyData == (Keys.Control | Keys.OemQuestion))
             {
                 string help = @"Exclusive unchecked = allow simultaneous timing.
@@ -275,6 +319,7 @@ namespace StoryTimer
 Ctrl+Shift+C to copy all timers to the second, e.g. 0:12:34
 Ctrl+Alt+C to copy all timers rounded to quarter hour, e.g. 09.75
 Ctrl+Shift+V to add timers from text
+Alt+S to show Settings
 
 To paste, timer text must be in form [time] [title], e.g. 
 1:23:45 My First Timer
@@ -286,6 +331,13 @@ To paste, timer text must be in form [time] [title], e.g.
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
+
+        private void ShowSettings()
+        {            
+            _settingsUI.StartPosition = FormStartPosition.CenterScreen;            
+            _settingsUI.Show();
+            _settingsUI.BringToFront();
+        }
         #endregion
 
         #region "Events"
@@ -337,7 +389,23 @@ To paste, timer text must be in form [time] [title], e.g.
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            InitializeSettings();
+
+            InitializeTimers();
+            InitializeStatusTimer();
+            SetTimerTotal();
+            SetStatusToHelpText();
+            // loading from text happens in MainForm_Load event so that form is visible.
             LoadTimerText(ReadCurrentTimerText());
+        }
+
+        private void MainForm_ResizeEnd(object sender, EventArgs e)
+        {
+            var options = _appOptions.CurrentValue;
+            options.WindowPosX = Left;
+            options.WindowPosY = Top;
+            options.WindowWidth = Width;
+            new SettingsManager().SaveAppOptions(options);
         }
     }
 }

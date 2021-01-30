@@ -195,6 +195,7 @@ namespace StoryTimer
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Load += new System.EventHandler(this.MainForm_Load);
+            this.ResizeEnd += new System.EventHandler(this.MainForm_ResizeEnd);
             this.panel.ResumeLayout(false);
             this.panel.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
