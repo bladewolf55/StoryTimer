@@ -63,6 +63,7 @@ namespace StoryTimer
             this.textBoxCurrentTimesFile.Name = "textBoxCurrentTimesFile";
             this.textBoxCurrentTimesFile.Size = new System.Drawing.Size(319, 23);
             this.textBoxCurrentTimesFile.TabIndex = 2;
+            this.textBoxCurrentTimesFile.Leave += new System.EventHandler(this.textBoxCurrentTimesFile_Leave);
             // 
             // textBoxPreviousTimesFile
             // 
@@ -70,6 +71,7 @@ namespace StoryTimer
             this.textBoxPreviousTimesFile.Name = "textBoxPreviousTimesFile";
             this.textBoxPreviousTimesFile.Size = new System.Drawing.Size(319, 23);
             this.textBoxPreviousTimesFile.TabIndex = 3;
+            this.textBoxPreviousTimesFile.Leave += new System.EventHandler(this.textBoxPreviousTimesFile_Leave);
             // 
             // buttonCurrentTimesFile
             // 
@@ -77,6 +79,7 @@ namespace StoryTimer
             this.buttonCurrentTimesFile.Name = "buttonCurrentTimesFile";
             this.buttonCurrentTimesFile.Size = new System.Drawing.Size(25, 23);
             this.buttonCurrentTimesFile.TabIndex = 4;
+            this.buttonCurrentTimesFile.Tag = "CurrentTimesFile";
             this.buttonCurrentTimesFile.Text = "...";
             this.buttonCurrentTimesFile.UseVisualStyleBackColor = true;
             this.buttonCurrentTimesFile.Click += new System.EventHandler(this.buttonCurrentTimesFile_Click);
@@ -87,8 +90,10 @@ namespace StoryTimer
             this.buttonPreviousTimesFile.Name = "buttonPreviousTimesFile";
             this.buttonPreviousTimesFile.Size = new System.Drawing.Size(25, 23);
             this.buttonPreviousTimesFile.TabIndex = 5;
+            this.buttonPreviousTimesFile.Tag = "PreviousTimesFile";
             this.buttonPreviousTimesFile.Text = "...";
             this.buttonPreviousTimesFile.UseVisualStyleBackColor = true;
+            this.buttonPreviousTimesFile.Click += new System.EventHandler(this.buttonPreviousTimesFile_Click);
             // 
             // openFileDialog1
             // 

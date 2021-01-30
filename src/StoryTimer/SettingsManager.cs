@@ -1,10 +1,7 @@
-﻿using System;
-using System.Text.Json;
-using System.IO;
-using System.Windows.Forms;
-
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.IO;
+using System.Text.Json;
 
 
 namespace StoryTimer
@@ -12,76 +9,28 @@ namespace StoryTimer
     public class SettingsManager
     {
         public const string AppSettingsFileName = "appsettings.json";
-
+        private IHostEnvironment _hostEnvironment;
         private readonly string _appSettingsFilePath;
 
-        public SettingsManager(IHostEnvironment hostEnvironment)
+        public SettingsManager(IHostEnvironment hostEnvironment = null)
         {
-            _appSettingsFilePath = hostEnvironment.ContentRootFileProvider.GetFileInfo(AppSettingsFileName).PhysicalPath;
+            _hostEnvironment = hostEnvironment ?? Program.Services.GetService<IHostEnvironment>();
+            _appSettingsFilePath = _hostEnvironment.ContentRootFileProvider.GetFileInfo(AppSettingsFileName).PhysicalPath;
         }
 
-        public void SaveAppSettings<T>(T settings) where T : class
+        public void SaveAppOptions(AppOptions options)
         {
-            string text = JsonSerializer.Serialize<T>(settings, new JsonSerializerOptions() { WriteIndented = true });
+            var appSettings = GetAppSettings();
+            appSettings.AppOptions = options;
+            string text = JsonSerializer.Serialize<AppSettings>(appSettings, new JsonSerializerOptions() { WriteIndented = true });
             File.WriteAllText(_appSettingsFilePath, text);
         }
 
-
-
-
-
-
-
-
-
-        //  System.Reflection.Assembly.GetExecutingAssembly().base
-        //private string _exeFolderPath = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory);
-        //private string _settingsFileName = "settings.json";
-        //private string _settingsFilePath;
-        //private string _saveCurrentTimesFileName = "current-times.txt";
-        //private string _savePreviousTimesFileName = "previous-times.txt";
-
-        //public SettingsManager()
-        //{
-        //    _settingsFilePath = Path.Combine(_exeFolderPath, _settingsFileName);
-        //    Directory.CreateDirectory(_exeFolderPath);
-        //    if (!File.Exists(_settingsFilePath)) { CreateDefaultSettings(); }
-        //}
-
-        //private void CreateDefaultSettings()
-        //{
-        //    int mainFormWidth = 214;
-
-        //    AppOptions defaultSettings = new AppOptions()
-        //    {
-        //        SaveCurrentTimesFilePath = Path.Combine(_exeFolderPath, _saveCurrentTimesFileName),
-        //        SavePreviousTimesFilePath = Path.Combine(_exeFolderPath, _savePreviousTimesFileName),
-        //        WindowWidth = mainFormWidth,
-        //        // temporary initial position where I like it
-        //        // top right
-        //        WindowPosX = Screen.PrimaryScreen.Bounds.Width - mainFormWidth + 5,
-        //        WindowPosY = 0
-        //    };
-        //    SaveSettings(defaultSettings);
-        //}
-
-        //private void SaveSettings(AppOptions settings = null)
-        //{
-        //    if (settings == null) { settings = Settings; }
-        //    File.WriteAllText(_settingsFilePath, JsonSerializer.Serialize(settings));
-        //}
-
-        //public AppOptions Settings { get => JsonSerializer.Deserialize<AppOptions>(File.ReadAllText(_settingsFilePath)); }
-
-        //public object GetSetting(string name)
-        //{
-        //    return Settings.GetType().GetProperty(name).GetValue(Settings);
-        //}
-
-        //public void SaveSetting(string name, object value)
-        //{
-        //    Settings.GetType().GetProperty(name).SetValue(Settings, value.ToString());
-        //    SaveSettings();
-        //}
+        public AppSettings GetAppSettings()
+        {
+            string settings = File.ReadAllText(_appSettingsFilePath);
+            var appSettings = JsonSerializer.Deserialize<AppSettings>(settings);
+            return appSettings;
+        }
     }
 }

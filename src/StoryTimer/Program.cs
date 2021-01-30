@@ -9,6 +9,8 @@ namespace StoryTimer
 {
     static class Program
     {
+        public static IServiceProvider Services;
+        public static IConfiguration Configuration;
 
         /// <summary>
         ///  The main entry point for the application.
@@ -20,8 +22,13 @@ namespace StoryTimer
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             var host = CreateHostBuilder().Build();
+            Services = host.Services;
 
-            var main = host.Services.GetService<MainForm>();
+            var o =  Services.GetService<IOptionsMonitor<AppOptions>>();
+            System.Diagnostics.Debug.WriteLine($"Version: { o.CurrentValue.Version}");
+
+            var main = Services.GetService<MainForm>();
+
             Application.Run(main);
         }
 
@@ -30,19 +37,19 @@ namespace StoryTimer
             .ConfigureHostConfiguration((config) =>
             {
             })
-            .ConfigureServices((context, services) =>
-            {
-                IConfiguration configuration = context.Configuration;
-                services.AddOptions<AppOptions>()
-                    .Bind(configuration.GetSection(nameof(AppOptions)));
-                services.AddSingleton(context.HostingEnvironment);
-                services.AddSingleton<MainForm>();
-            })
-            .ConfigureAppConfiguration((hostContext, config) =>
+            .ConfigureAppConfiguration((hostBuilderContext, config) =>
             {
                 // override the default config providers
                 config.Sources.Clear();
                 config.AddJsonFile(SettingsManager.AppSettingsFileName, optional: false, reloadOnChange: true);
+            })
+            .ConfigureServices((context, services) =>
+            {
+                Configuration = context.Configuration;
+                services.Configure<AppOptions>(Configuration.GetSection(nameof(AppOptions)));
+                services.AddSingleton<IHostEnvironment>(context.HostingEnvironment);
+                services.AddSingleton<MainForm>();
+                services.AddTransient<SettingsUI>();
             })
             ;
     }
