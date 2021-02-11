@@ -76,7 +76,13 @@ namespace StoryTimer
             if (File.Exists(newFile)) { throw new Exception("Target file exists"); }
             if (oldFile != newFile)
             {
-                File.Move(oldFile, newFile);
+                if (String.IsNullOrWhiteSpace(oldFile))
+                {
+                    File.Create(newFile);
+                }
+                else {
+                    File.Move(oldFile, newFile);
+                }
             }
         }
 
@@ -97,7 +103,10 @@ namespace StoryTimer
         {
             try
             {
-                SetTimesFileFromTextBox((TextBox)sender);
+                if (!_appOptions.SaveCurrentTimesFilePath.Equals(textBoxCurrentTimesFile.Text, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    SetTimesFileFromTextBox((TextBox)sender);
+                }
             }
             catch (Exception ex)
             {
@@ -109,7 +118,10 @@ namespace StoryTimer
         {
             try
             {
-                SetTimesFileFromTextBox((TextBox)sender);
+                if (!_appOptions.SavePreviousTimesFilePath.Equals(textBoxCurrentTimesFile.Text, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    SetTimesFileFromTextBox((TextBox)sender);
+                }
             }
             catch (Exception ex)
             {
