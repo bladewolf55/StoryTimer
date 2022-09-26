@@ -407,5 +407,12 @@ To paste, timer text must be in form [time] [title], e.g.
             options.WindowWidth = Width;
             new SettingsManager().SaveAppOptions(options);
         }
+
+        private void buttonPaste_Click(object sender, EventArgs e)
+        {
+            textBoxNew.Text = Clipboard.GetText().Replace(Environment.NewLine, " ");
+            textBoxNew.Focus();
+        }
+
     }
 }
