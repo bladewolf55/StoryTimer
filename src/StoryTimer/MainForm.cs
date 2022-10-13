@@ -298,20 +298,41 @@ namespace StoryTimer
                 return true;
             }
             // Copy time rounded to quarter hour
+            
             if (keyData == (Keys.Control | Keys.Alt | Keys.C))
             {
                 CopyAll(true, true, true);
                 return true;
             }
+            
             if (keyData == (Keys.Control | Keys.Shift | Keys.V))
             {
                 PasteAll();
                 return true;
             }
+
+            // Paste clipboard stripping linefeeds
+            if (keyData == (Keys.Alt | Keys.V))
+            {
+                textBoxNew.Text = Clipboard.GetText().Replace(Environment.NewLine, " ");
+                textBoxNew.Focus();
+                return true;
+            }
+
+            // Add task from clipboard stripping linefeeds
+            if (keyData == (Keys.Control | Keys.Alt | Keys.V))
+            {
+                var text = Clipboard.GetText().Replace(Environment.NewLine, " ");
+                AddNewTimer(text);
+                return true;
+            }
+
+
             if (keyData == (Keys.Alt | Keys.S))
             {
                 ShowSettings();
             }
+            
             if (keyData == (Keys.Control | Keys.OemQuestion))
             {
                 string help = @"Exclusive unchecked = allow simultaneous timing.
@@ -319,6 +340,8 @@ namespace StoryTimer
 Ctrl+Shift+C to copy all timers to the second, e.g. 0:12:34
 Ctrl+Alt+C to copy all timers rounded to quarter hour, e.g. 09.75
 Ctrl+Shift+V to add timers from text
+Alt+V to paste multi-line from clipboard into new item text box
+Ctrl+Alt+V to start new timer with multi-line from clipboard
 Alt+S to show Settings
 
 To paste, timer text must be in form [time] [title], e.g. 
@@ -385,7 +408,6 @@ To paste, timer text must be in form [time] [title], e.g.
                 e.SuppressKeyPress = true;
             }
         }
-        #endregion
 
         private void MainForm_Load(object sender, EventArgs e)
         {
@@ -413,6 +435,8 @@ To paste, timer text must be in form [time] [title], e.g.
             textBoxNew.Text = Clipboard.GetText().Replace(Environment.NewLine, " ");
             textBoxNew.Focus();
         }
+
+        #endregion
 
     }
 }
