@@ -44,7 +44,6 @@ namespace StoryTimer
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.buttonPaste = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.panel.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -99,7 +98,7 @@ namespace StoryTimer
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBoxNew.Location = new System.Drawing.Point(6, 45);
             this.textBoxNew.Name = "textBoxNew";
-            this.textBoxNew.Size = new System.Drawing.Size(167, 23);
+            this.textBoxNew.Size = new System.Drawing.Size(185, 23);
             this.textBoxNew.TabIndex = 4;
             this.textBoxNew.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxNew_KeyDown);
             // 
@@ -180,26 +179,11 @@ namespace StoryTimer
             this.toolStripStatusLabel2.Size = new System.Drawing.Size(118, 17);
             this.toolStripStatusLabel2.Text = "toolStripStatusLabel2";
             // 
-            // buttonPaste
-            // 
-            this.buttonPaste.AccessibleDescription = "Paste from clipboard";
-            this.buttonPaste.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonPaste.Location = new System.Drawing.Point(174, 45);
-            this.buttonPaste.Name = "buttonPaste";
-            this.buttonPaste.Size = new System.Drawing.Size(19, 23);
-            this.buttonPaste.TabIndex = 7;
-            this.buttonPaste.Text = "P";
-            this.toolTip1.SetToolTip(this.buttonPaste, "Paste from clipboard");
-            this.buttonPaste.UseVisualStyleBackColor = true;
-            this.buttonPaste.Click += new System.EventHandler(this.buttonPaste_Click);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(198, 160);
-            this.Controls.Add(this.buttonPaste);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.panel);
             this.Controls.Add(this.textBoxNew);
@@ -238,7 +222,6 @@ namespace StoryTimer
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
-        private System.Windows.Forms.Button buttonPaste;
         private System.Windows.Forms.ToolTip toolTip1;
     }
 }

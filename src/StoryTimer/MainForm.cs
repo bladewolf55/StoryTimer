@@ -312,15 +312,15 @@ namespace StoryTimer
             }
 
             // Paste clipboard stripping linefeeds
-            if (keyData == (Keys.Alt | Keys.V))
+            if (keyData == (Keys.Control | Keys.V))
             {
                 textBoxNew.Text = Clipboard.GetText().Replace(Environment.NewLine, " ");
                 textBoxNew.Focus();
                 return true;
             }
 
-            // Add task from clipboard stripping linefeeds
-            if (keyData == (Keys.Control | Keys.Alt | Keys.V))
+            // Start timer from clipboard stripping linefeeds
+            if (keyData == (Keys.Alt | Keys.V))
             {
                 var text = Clipboard.GetText().Replace(Environment.NewLine, " ");
                 AddNewTimer(text);
@@ -340,8 +340,8 @@ namespace StoryTimer
 Ctrl+Shift+C to copy all timers to the second, e.g. 0:12:34
 Ctrl+Alt+C to copy all timers rounded to quarter hour, e.g. 09.75
 Ctrl+Shift+V to add timers from text
-Alt+V to paste multi-line from clipboard into new item text box
-Ctrl+Alt+V to start new timer with multi-line from clipboard
+Ctrl+V replaces linefeeds with spaces
+Alt+V to start new timer from clipboard
 Alt+S to show Settings
 
 To paste, timer text must be in form [time] [title], e.g. 
@@ -428,12 +428,6 @@ To paste, timer text must be in form [time] [title], e.g.
             options.WindowPosY = Top;
             options.WindowWidth = Width;
             new SettingsManager().SaveAppOptions(options);
-        }
-
-        private void buttonPaste_Click(object sender, EventArgs e)
-        {
-            textBoxNew.Text = Clipboard.GetText().Replace(Environment.NewLine, " ");
-            textBoxNew.Focus();
         }
 
         #endregion
