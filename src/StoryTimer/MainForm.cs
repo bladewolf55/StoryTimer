@@ -314,9 +314,9 @@ namespace StoryTimer
             // Paste clipboard stripping linefeeds
             if (keyData == (Keys.Control | Keys.V))
             {
-                textBoxNew.Text = Clipboard.GetText().Replace(Environment.NewLine, " ");
-                textBoxNew.Focus();
-                return true;
+                var text = Clipboard.GetText().Replace(Environment.NewLine, " ");
+                Clipboard.SetText(text);
+                return base.ProcessCmdKey(ref msg, keyData);
             }
 
             // Start timer from clipboard stripping linefeeds
@@ -331,6 +331,7 @@ namespace StoryTimer
             if (keyData == (Keys.Alt | Keys.S))
             {
                 ShowSettings();
+                return true;
             }
             
             if (keyData == (Keys.Control | Keys.OemQuestion))
