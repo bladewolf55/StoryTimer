@@ -4,12 +4,12 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
-    <Version>1.6.0</Version>
+    <Version>1.7.3</Version>
     <Authors>Charles L Flatt</Authors>
     <Company>Charles L Flatt</Company>
     <Copyright>Copyright (c) 2020</Copyright>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.5.1.0</FileVersion>
+    <AssemblyVersion></AssemblyVersion>
+    <FileVersion></FileVersion>
     <Description>A simple app that makes it easier to track time when task-switching.</Description>
     <PackageProjectUrl>https://github.com/bladewolf55/StoryTimer</PackageProjectUrl>
     <RepositoryUrl>https://github.com/bladewolf55/StoryTimer.git</RepositoryUrl>
