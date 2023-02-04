@@ -19,6 +19,7 @@ namespace StoryTimer
         private Size _defaultSize;
         public const string TimerFormat = @"h\:mm\:ss";
         private SettingsUI _settingsUI;
+        private SnippetSelector _snippetSelector;
 
         public MainForm(IOptionsMonitor<AppOptions> appOptions = null)
         {
@@ -26,6 +27,8 @@ namespace StoryTimer
             _appOptions = appOptions;
             _settingsUI = Program.Services.GetService<SettingsUI>();
             _settingsUI.FormClosing += _settingsUI_FormClosing;
+            _snippetSelector = Program.Services.GetService<SnippetSelector>();
+            _snippetSelector.FormClosing += _snippetSelector_FormClosing;
         }
 
         private void _settingsUI_FormClosing(object sender, FormClosingEventArgs e)
@@ -34,9 +37,39 @@ namespace StoryTimer
             {
                 ((Form)sender).Hide();
                 e.Cancel = true;
+                if (_settingsUI.CurrentTimesFileChanged)
+                {
+                    var file = _appOptions.CurrentValue.SaveCurrentTimesFilePath;
+                    var text = File.ReadAllText(file);
+                    ResetAllTimers();
+                    LoadTimerText(text);
+                }
             }
         }
 
+        private void _snippetSelector_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                ((Form)sender).Hide();
+                e.Cancel = true;
+
+                if (_snippetSelector.SnippetSelected)
+                {
+                    Clipboard.SetText(_snippetSelector.Snippet);
+                    WriteStatus("Snippet copied to clipboard");
+                    if (this.ActiveControl is TextBox)
+                    {
+                        var textBox = ((TextBox)this.ActiveControl);
+                        var start = textBox.SelectionStart;
+                        var text = textBox.Text;
+                        var newText = text.Substring(0, start) + _snippetSelector.Snippet + text.Substring(start);
+                        textBox.Text = newText;
+                        textBox.SelectionStart = textBox.TextLength;
+                    }
+                }
+            }
+        }
 
         // Do this after the form is loaded so its size is available.
         private void InitializeSettings()
@@ -44,25 +77,34 @@ namespace StoryTimer
             string currentVersion = Application.ProductVersion;
             AppOptions options = _appOptions.CurrentValue;
 
-            // always use CurrenValue
+            // defaults
+            string saveCurrentTimesFileName = "current-times.txt";
+            string savePreviousTimesFileName = "previous-times.txt";
+            string saveSnippetsFileName = "snippets.txt";
+            string exeFolderPath = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory);
+
+            // always use CurrentValue
             if (String.IsNullOrWhiteSpace(_appOptions.CurrentValue.Version))
             {
                 int mainFormWidth = 214;
-                string exeFolderPath = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory);
-                string saveCurrentTimesFileName = "current-times.txt";
-                string savePreviousTimesFileName = "previous-times.txt";
                 // Important: Do not reinitialize options, otherwise OptionsMonitor doesn't fire correctly
-                // So, don't do optionsn = new AppOptions.
+                // So, don't do options = new AppOptions.
                 options.Version = currentVersion;
                 options.SaveCurrentTimesFilePath = Path.Combine(exeFolderPath, saveCurrentTimesFileName);
                 options.SavePreviousTimesFilePath = Path.Combine(exeFolderPath, savePreviousTimesFileName);
+                options.SaveSnippetsFilePath = Path.Combine(exeFolderPath, saveSnippetsFileName);
                 options.WindowPosX = Screen.PrimaryScreen.Bounds.Width - mainFormWidth + 5;
                 options.WindowPosY = 0;
                 options.WindowWidth = mainFormWidth;
             }
-            // TODO: continue checking if currentVersion is greater than each settings change version and 
-            // apply changes
-            // if (_appOptions.Version.VersionLessThan(currentVersion)) {}
+            // Version-related changes
+            if (options.SettingsVersionLessThan("2.0.0"))
+            {
+                options.SaveSnippetsFilePath = Path.Combine(exeFolderPath, saveSnippetsFileName);
+            }
+
+            // always set version
+            options.Version = currentVersion;
 
             // Save
             new SettingsManager().SaveAppOptions(options);
@@ -298,13 +340,13 @@ namespace StoryTimer
                 return true;
             }
             // Copy time rounded to quarter hour
-            
+
             if (keyData == (Keys.Control | Keys.Alt | Keys.C))
             {
                 CopyAll(true, true, true);
                 return true;
             }
-            
+
             if (keyData == (Keys.Control | Keys.Shift | Keys.V))
             {
                 PasteAll();
@@ -333,7 +375,13 @@ namespace StoryTimer
                 ShowSettings();
                 return true;
             }
-            
+
+            if (keyData == (Keys.Control | Keys.I))
+            {
+                ShowSnippets();
+                return true;
+            }
+
             if (keyData == (Keys.Control | Keys.OemQuestion))
             {
                 string help = @"Exclusive unchecked = allow simultaneous timing.
@@ -343,6 +391,7 @@ Ctrl+Alt+C to copy all timers rounded to quarter hour, e.g. 09.75
 Ctrl+Shift+V to add timers from text
 Ctrl+V replaces linefeeds with spaces
 Alt+V to start new timer from clipboard
+Ctrl+I to insert a snippet
 Alt+S to show Settings
 
 To paste, timer text must be in form [time] [title], e.g. 
@@ -357,11 +406,29 @@ To paste, timer text must be in form [time] [title], e.g.
 
 
         private void ShowSettings()
-        {            
-            _settingsUI.StartPosition = FormStartPosition.CenterScreen;            
+        {
+            _settingsUI.StartPosition = FormStartPosition.CenterScreen;
             _settingsUI.Show();
             _settingsUI.BringToFront();
         }
+        private void ShowSnippets()
+        {
+            _snippetSelector.SetSnippetList(GetSnippets());
+            // tiled position from timer
+            _snippetSelector.StartPosition = this.StartPosition;
+            _snippetSelector.Top = this.Top + 10;
+            _snippetSelector.Left = this.Left + 10;
+            _snippetSelector.Show();
+            _snippetSelector.BringToFront();
+        }
+
+        private string[] GetSnippets()
+        {
+            var file = _appOptions.CurrentValue.SaveSnippetsFilePath;
+            var snippets = File.ReadAllLines(file);
+            return snippets;
+        }
+
         #endregion
 
         #region "Events"

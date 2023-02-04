@@ -50,6 +50,7 @@ namespace StoryTimer
                 services.AddSingleton<IHostEnvironment>(context.HostingEnvironment);
                 services.AddSingleton<MainForm>();
                 services.AddTransient<SettingsUI>();
+                services.AddTransient<SnippetSelector>();
             })
             ;
     }
