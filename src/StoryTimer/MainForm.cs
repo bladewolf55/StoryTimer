@@ -155,8 +155,10 @@ namespace StoryTimer
             panel.Visible = false;
             checkBox1.Checked = true;
             _storyTimers.First().StopAndReset();
+            var currentSize = Size;
             Size = _defaultSize;
             this.Height = this.Height - panel.Height;
+            this.Width = currentSize.Width;            
         }
 
         private StoryTimerInstance AddNewTimer(string title, string elapsedTime = " 0:00:00", bool doNotStart = false)
