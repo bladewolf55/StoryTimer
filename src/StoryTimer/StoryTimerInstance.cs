@@ -167,6 +167,7 @@ namespace StoryTimer
             elapsedTime.BackColor = ElapsedTime.BackColor;
             elapsedTime.ForeColor = ElapsedTime.ForeColor;
             elapsedTime.Text = " 0:00:00";
+            elapsedTime.Anchor = ElapsedTime.Anchor;
             panel.Controls.Add(elapsedTime);
 
             StoryTimerInstance clone = new StoryTimerInstance(id, panel);
